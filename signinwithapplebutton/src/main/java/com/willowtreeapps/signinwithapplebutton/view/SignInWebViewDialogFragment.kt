@@ -98,7 +98,7 @@ webView.webChromeClient = object : WebChromeClient() {
     }
 }
 
-}
+
         
         webView.webViewClient =
             UrlInterceptorWebViewClient(authenticationAttempt.redirectUri, FormInterceptorInterface.JS_TO_INJECT)
