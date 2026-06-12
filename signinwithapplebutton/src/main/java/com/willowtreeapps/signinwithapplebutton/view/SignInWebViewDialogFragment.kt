@@ -9,6 +9,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.view.ViewGroup.LayoutParams.MATCH_PARENT
 import android.webkit.WebView
+import android.webkit.WebSettings
 import androidx.fragment.app.DialogFragment
 import com.willowtreeapps.signinwithapplebutton.R
 import com.willowtreeapps.signinwithapplebutton.SignInWithAppleResult
@@ -61,6 +62,11 @@ internal class SignInWebViewDialogFragment : DialogFragment() {
 
                 domStorageEnabled = true 
                 setSupportMultipleWindows(true)
+
+                val finalUa = WebSettings.getDefaultUserAgent(this@SignInWebViewDialogFragment)
+                    .replace("; wv", "")
+                    .replace(" Version/4.0", "")
+                userAgentString = finalUa
             }
         }
 
