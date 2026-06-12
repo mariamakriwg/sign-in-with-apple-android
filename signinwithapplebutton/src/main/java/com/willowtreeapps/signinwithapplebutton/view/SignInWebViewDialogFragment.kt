@@ -62,21 +62,15 @@ internal class SignInWebViewDialogFragment : DialogFragment() {
             settings.apply {
                 javaScriptEnabled = true
                 javaScriptCanOpenWindowsAutomatically = true
-
                 domStorageEnabled = true 
                 setSupportMultipleWindows(true)
 
-
                 val defaultUa = WebSettings.getDefaultUserAgent(requireContext())
-
-                Log.d("SIWA_UA ououuououo", WebSettings.getDefaultUserAgent(requireContext()))
                 val finalUa = defaultUa
                     .replace("; wv", "")
                     .replace(" Version/4.0", "")
-                    .replace(Regex("Chrome/\\d+\\.\\d+\\.\\d+\\.\\d+"), "Chrome/125.0.0.0")
                 userAgentString = finalUa
-
-                
+            
             }
         }
 
