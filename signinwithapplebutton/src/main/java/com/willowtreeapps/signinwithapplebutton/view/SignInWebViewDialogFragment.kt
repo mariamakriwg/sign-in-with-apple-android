@@ -65,9 +65,6 @@ internal class SignInWebViewDialogFragment : DialogFragment() {
 
                 domStorageEnabled = true 
                 setSupportMultipleWindows(true)
-
-
-                userAgentString = "Mozilla/5.0 (Linux; Android 12; Pixel 6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.6099.230 Mobile Safari/537.36"
             }
         }
 
