@@ -63,10 +63,8 @@ internal class SignInWebViewDialogFragment : DialogFragment() {
                 domStorageEnabled = true 
                 setSupportMultipleWindows(true)
 
-                val finalUa = WebSettings.getDefaultUserAgent(requireContext())
-                    .replace("; wv", "")
-                    .replace(" Version/4.0", "")
-                userAgentString = finalUa
+
+                userAgentString = "Mozilla/5.0 (Linux; Android 12; Pixel 6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.6099.230 Mobile Safari/537.36"
             }
         }
 
