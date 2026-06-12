@@ -63,7 +63,7 @@ internal class SignInWebViewDialogFragment : DialogFragment() {
                 domStorageEnabled = true 
                 setSupportMultipleWindows(true)
 
-                val finalUa = WebSettings.getDefaultUserAgent(this@SignInWebViewDialogFragment)
+                val finalUa = WebSettings.getDefaultUserAgent(requireContext())
                     .replace("; wv", "")
                     .replace(" Version/4.0", "")
                 userAgentString = finalUa
