@@ -65,6 +65,9 @@ internal class SignInWebViewDialogFragment : DialogFragment() {
 
                 domStorageEnabled = true 
                 setSupportMultipleWindows(true)
+
+
+                userAgentString = "Mozilla/5.0 (Linux; Android 12; Pixel 6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.6099.230 Mobile Safari/537.36"
             }
         }
 
@@ -75,9 +78,25 @@ internal class SignInWebViewDialogFragment : DialogFragment() {
         CookieManager.getInstance().apply {
     setAcceptCookie(true)
     setAcceptThirdPartyCookies(webView, true)
-
 }
 
+webView.webChromeClient = object : WebChromeClient() {
+    override fun onCreateWindow(
+        view: WebView,
+        isDialog: Boolean,
+        isUserGesture: Boolean,
+        resultMsg: Message
+    ): Boolean {
+        val newWebView = WebView(requireContext()).apply {
+            settings.javaScriptEnabled = true
+            settings.domStorageEnabled = true
+            settings.userAgentString = view.settings.userAgentString
+        }
+        (resultMsg.obj as WebView.WebViewTransport).webView = newWebView
+        resultMsg.sendToTarget()
+        return true
+    }
+}
 
 }
         
