@@ -9,6 +9,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.view.ViewGroup.LayoutParams.MATCH_PARENT
 import android.webkit.WebView
+import android.webkit.CookieManager
 import android.webkit.WebSettings
 import androidx.fragment.app.DialogFragment
 import com.willowtreeapps.signinwithapplebutton.R
@@ -72,6 +73,11 @@ internal class SignInWebViewDialogFragment : DialogFragment() {
         val formInterceptorInterface = FormInterceptorInterface(authenticationAttempt.state, ::onCallback)
         webView.addJavascriptInterface(formInterceptorInterface, FormInterceptorInterface.NAME)
 
+        CookieManager.getInstance().apply {
+    setAcceptCookie(true)
+    setAcceptThirdPartyCookies(webView, true)
+}
+        
         webView.webViewClient =
             UrlInterceptorWebViewClient(authenticationAttempt.redirectUri, FormInterceptorInterface.JS_TO_INJECT)
 
