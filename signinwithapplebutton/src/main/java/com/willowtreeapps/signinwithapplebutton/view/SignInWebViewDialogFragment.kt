@@ -67,11 +67,14 @@ internal class SignInWebViewDialogFragment : DialogFragment() {
                 setSupportMultipleWindows(true)
 
 
-                    val finalUa = WebSettings.getDefaultUserAgent(requireContext())
-        .replace("; wv", "")
-        .replace(" Version/4.0", "")
+                val defaultUa = WebSettings.getDefaultUserAgent(requireContext())
 
-    userAgentString = finalUa
+                Log.d("SIWA_UA ououuououo", WebSettings.getDefaultUserAgent(requireContext()))
+                val finalUa = defaultUa
+                    .replace("; wv", "")
+                    .replace(" Version/4.0", "")
+                    .replace(Regex("Chrome/\\d+\\.\\d+\\.\\d+\\.\\d+"), "Chrome/125.0.0.0")
+                userAgentString = finalUa
 
                 
             }
