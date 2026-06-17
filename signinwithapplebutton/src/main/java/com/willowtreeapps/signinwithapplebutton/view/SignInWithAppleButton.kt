@@ -48,6 +48,8 @@ class SignInWithAppleButton @JvmOverloads constructor(
             SignInTextType.SIGN_IN.ordinal
         )
 
+        val customText = attributes.getString(R.styleable.SignInWithAppleButton_android_text)
+
         // Corner radius
         val cornerRadius = attributes.getDimension(
             R.styleable.SignInWithAppleButton_sign_in_with_apple_button_cornerRadius,
@@ -84,7 +86,7 @@ class SignInWithAppleButton @JvmOverloads constructor(
 
         textView.typeface = typeface
 
-        textView.text = resources.getString(SignInTextType.values()[text].text)
+        textView.text = customText ?: resources.getString(SignInTextType.values()[text].text)
     }
 
     fun setUpSignInWithAppleOnClick(
