@@ -18,6 +18,12 @@ import com.willowtreeapps.signinwithapplebutton.R
 import com.willowtreeapps.signinwithapplebutton.SignInWithAppleResult
 import com.willowtreeapps.signinwithapplebutton.SignInWithAppleService
 import com.willowtreeapps.signinwithapplebutton.view.SignInWithAppleButton.Companion.SIGN_IN_WITH_APPLE_LOG_TAG
+import android.widget.FrameLayout
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsCompat
+import androidx.core.view.updatePadding
+import androidx.core.view.WindowCompat
+
 
 @SuppressLint("SetJavaScriptEnabled")
 internal class SignInWebViewDialogFragment : DialogFragment() {
@@ -58,21 +64,29 @@ internal class SignInWebViewDialogFragment : DialogFragment() {
     ): View? {
         super.onCreateView(inflater, container, savedInstanceState)
 
-        val webView = WebView(context).apply {
-            settings.apply {
-                javaScriptEnabled = true
-                javaScriptCanOpenWindowsAutomatically = true
-                domStorageEnabled = true 
-                setSupportMultipleWindows(true)
+        val root = FrameLayout(requireContext())
 
-                val defaultUa = WebSettings.getDefaultUserAgent(requireContext())
-                val finalUa = defaultUa
-                    .replace("; wv", "")
-                    .replace(" Version/4.0", "")
-                userAgentString = finalUa
-            
-            }
-        }
+val webView = WebView(requireContext()).apply {
+    settings.apply {
+        javaScriptEnabled = true
+        javaScriptCanOpenWindowsAutomatically = true
+        domStorageEnabled = true
+        setSupportMultipleWindows(true)
+
+        val defaultUa = WebSettings.getDefaultUserAgent(requireContext())
+        userAgentString = defaultUa
+            .replace("; wv", "")
+            .replace(" Version/4.0", "")
+    }
+}
+
+root.addView(
+    webView,
+    FrameLayout.LayoutParams(
+        MATCH_PARENT,
+        MATCH_PARENT
+    )
+)
 
                 CookieManager.getInstance().apply {
     setAcceptCookie(true)
@@ -95,7 +109,27 @@ internal class SignInWebViewDialogFragment : DialogFragment() {
             webView.loadUrl(authenticationAttempt.authenticationUri)
         }
 
-        return webView
+
+        ViewCompat.setOnApplyWindowInsetsListener(root) { view, insets ->
+    val bars = insets.getInsets(
+        WindowInsetsCompat.Type.systemBars() or
+        WindowInsetsCompat.Type.displayCutout()
+    )
+
+    view.updatePadding(
+        left = bars.left,
+        top = bars.top,
+        right = bars.right,
+        bottom = bars.bottom
+    )
+
+    insets
+}
+
+ViewCompat.requestApplyInsets(root)
+
+return root
+        
     }
 
     override fun onSaveInstanceState(outState: Bundle) {
@@ -108,11 +142,15 @@ internal class SignInWebViewDialogFragment : DialogFragment() {
         )
     }
 
-    override fun onStart() {
-        super.onStart()
+   override fun onStart() {
+    super.onStart()
 
-        dialog?.window?.setLayout(MATCH_PARENT, MATCH_PARENT)
+    dialog?.window?.let { window ->
+        window.setLayout(MATCH_PARENT, MATCH_PARENT)
+        WindowCompat.setDecorFitsSystemWindows(window, false)
     }
+}
+   
 
     override fun onCancel(dialog: DialogInterface) {
         super.onCancel(dialog)
