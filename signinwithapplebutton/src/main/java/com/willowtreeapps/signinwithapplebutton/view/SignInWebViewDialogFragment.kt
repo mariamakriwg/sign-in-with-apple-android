@@ -13,6 +13,9 @@ import android.webkit.CookieManager
 import android.os.Message
 import android.webkit.WebChromeClient
 import android.webkit.WebSettings
+import android.widget.FrameLayout
+import androidx.core.view.ViewCompat
+import androidx.core.view.updatePadding
 import androidx.fragment.app.DialogFragment
 import com.willowtreeapps.signinwithapplebutton.R
 import com.willowtreeapps.signinwithapplebutton.SignInWithAppleResult
@@ -38,8 +41,9 @@ internal class SignInWebViewDialogFragment : DialogFragment() {
     private lateinit var authenticationAttempt: SignInWithAppleService.AuthenticationAttempt
     private var callback: ((SignInWithAppleResult) -> Unit)? = null
 
-    private val webViewIfCreated: WebView?
-        get() = view as? WebView
+    // Direct reference to the WebView, since the fragment's root view is now
+    // a FrameLayout wrapper (needed for inset/padding handling), not the WebView itself.
+    private var webViewIfCreated: WebView? = null
 
     fun configure(callback: (SignInWithAppleResult) -> Unit) {
         this.callback = callback
@@ -58,11 +62,13 @@ internal class SignInWebViewDialogFragment : DialogFragment() {
     ): View? {
         super.onCreateView(inflater, container, savedInstanceState)
 
-        val webView = WebView(context).apply {
+        val root = FrameLayout(requireContext())
+
+        val webView = WebView(requireContext()).apply {
             settings.apply {
                 javaScriptEnabled = true
                 javaScriptCanOpenWindowsAutomatically = true
-                domStorageEnabled = true 
+                domStorageEnabled = true
                 setSupportMultipleWindows(true)
 
                 val defaultUa = WebSettings.getDefaultUserAgent(requireContext())
@@ -70,19 +76,26 @@ internal class SignInWebViewDialogFragment : DialogFragment() {
                     .replace("; wv", "")
                     .replace(" Version/4.0", "")
                 userAgentString = finalUa
-            
             }
         }
+        webViewIfCreated = webView
 
-                CookieManager.getInstance().apply {
-    setAcceptCookie(true)
-    setAcceptThirdPartyCookies(webView, true)
-}
+        root.addView(
+            webView,
+            FrameLayout.LayoutParams(
+                MATCH_PARENT,
+                MATCH_PARENT
+            )
+        )
+
+        CookieManager.getInstance().apply {
+            setAcceptCookie(true)
+            setAcceptThirdPartyCookies(webView, true)
+        }
 
         // Adding a JavaScript interface
         val formInterceptorInterface = FormInterceptorInterface(authenticationAttempt.state, ::onCallback)
         webView.addJavascriptInterface(formInterceptorInterface, FormInterceptorInterface.NAME)
-
 
         webView.webViewClient =
             UrlInterceptorWebViewClient(authenticationAttempt.redirectUri, FormInterceptorInterface.JS_TO_INJECT)
@@ -95,7 +108,24 @@ internal class SignInWebViewDialogFragment : DialogFragment() {
             webView.loadUrl(authenticationAttempt.authenticationUri)
         }
 
-        return webView
+        ViewCompat.setOnApplyWindowInsetsListener(root) { view, insets ->
+            view.updatePadding(
+                left = insets.systemWindowInsetLeft,
+                top = insets.systemWindowInsetTop,
+                right = insets.systemWindowInsetRight,
+                bottom = insets.systemWindowInsetBottom
+            )
+            insets
+        }
+
+        ViewCompat.requestApplyInsets(root)
+
+        return root
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        webViewIfCreated = null
     }
 
     override fun onSaveInstanceState(outState: Bundle) {
@@ -111,7 +141,15 @@ internal class SignInWebViewDialogFragment : DialogFragment() {
     override fun onStart() {
         super.onStart()
 
-        dialog?.window?.setLayout(MATCH_PARENT, MATCH_PARENT)
+        dialog?.window?.let { window ->
+            window.setLayout(MATCH_PARENT, MATCH_PARENT)
+            @Suppress("DEPRECATION")
+            window.decorView.systemUiVisibility = (
+                View.SYSTEM_UI_FLAG_LAYOUT_STABLE
+                    or View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
+                    or View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
+                )
+        }
     }
 
     override fun onCancel(dialog: DialogInterface) {
