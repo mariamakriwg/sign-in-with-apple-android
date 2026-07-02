@@ -15,7 +15,6 @@ import android.webkit.WebChromeClient
 import android.webkit.WebSettings
 import android.widget.FrameLayout
 import androidx.core.view.ViewCompat
-import androidx.core.view.updatePadding
 import androidx.fragment.app.DialogFragment
 import com.willowtreeapps.signinwithapplebutton.R
 import com.willowtreeapps.signinwithapplebutton.SignInWithAppleResult
@@ -108,15 +107,15 @@ internal class SignInWebViewDialogFragment : DialogFragment() {
             webView.loadUrl(authenticationAttempt.authenticationUri)
         }
 
-        ViewCompat.setOnApplyWindowInsetsListener(root) { view, insets ->
-            view.updatePadding(
-                left = insets.systemWindowInsetLeft,
-                top = insets.systemWindowInsetTop,
-                right = insets.systemWindowInsetRight,
-                bottom = insets.systemWindowInsetBottom
-            )
-            insets
-        }
+       ViewCompat.setOnApplyWindowInsetsListener(root) { view, insets ->
+    view.setPadding(
+        insets.systemWindowInsetLeft,
+        insets.systemWindowInsetTop,
+        insets.systemWindowInsetRight,
+        insets.systemWindowInsetBottom
+    )
+    insets
+}
 
         ViewCompat.requestApplyInsets(root)
 
